@@ -1,13 +1,14 @@
-import express,{Express,Request,Response} from 'express'
+import express,{Express} from 'express'
+import { PORT } from './config/Server.config';
+import apirouter from './Routes';
+
 
 const app:Express = express();
 
-app.get("/ping",(_req:Request,res:Response)=>{
-    res.status(200).json({
-        message:"pong bhai hai kya"
-    })
-})
 
-app.listen(3000,()=>{
-    console.log("server started at 3000");
+app.use('/api',apirouter);
+
+
+app.listen(PORT,()=>{
+    console.log(`server started at ${PORT}`);
 })

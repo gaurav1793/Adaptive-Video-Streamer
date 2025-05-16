@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
     "watch":"npx tsc -w",
-    "dev": "npx concurrently --kill-others \"npm run watch\" \"node dist/index.js\""
+    "dev": "npx concurrently --kill-others \"npm run watch\" \"nodemon dist/index.js\""
   },
   "keywords": [],
   "author": "",

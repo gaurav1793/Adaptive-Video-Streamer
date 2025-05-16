@@ -4,12 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const Server_config_1 = require("./config/Server.config");
+const Routes_1 = __importDefault(require("./Routes"));
 const app = (0, express_1.default)();
-app.get("/ping", (_req, res) => {
-    res.status(200).json({
-        message: "pong bhai hai kya"
-    });
-});
-app.listen(3000, () => {
-    console.log("server started at 3000");
+app.use('/api', Routes_1.default);
+app.listen(Server_config_1.PORT, () => {
+    console.log(`server started at ${Server_config_1.PORT}`);
 });
