@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { processVideoForHLS } from "../services/video.services";
 import fs from 'fs'
+import { findStatus } from "../repositories/movie.repository";
 
 
 
@@ -36,5 +37,15 @@ export const uploadVideoController = async(req:Request,res :Response)=>{
     res.status(200).json({
         success:true,
         message:'video processed succesfully',
+        data:outputPath
     })
+}
+
+
+
+export const getStatusController = async(req:Request,_res :Response)=>{
+    const id = req.params.id;
+    console.log(id);
+    // const response = await findStatus(id);
+    // console.log(response);
 }

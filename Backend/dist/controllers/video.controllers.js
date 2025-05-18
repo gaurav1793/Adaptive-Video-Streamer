@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadVideoController = void 0;
+exports.getStatusController = exports.uploadVideoController = void 0;
 const video_services_1 = require("../services/video.services");
 const fs_1 = __importDefault(require("fs"));
 const uploadVideoController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -46,6 +46,14 @@ const uploadVideoController = (req, res) => __awaiter(void 0, void 0, void 0, fu
     res.status(200).json({
         success: true,
         message: 'video processed succesfully',
+        data: outputPath
     });
 });
 exports.uploadVideoController = uploadVideoController;
+const getStatusController = (req, _res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    console.log(id);
+    // const response = await findStatus(id);
+    // console.log(response);
+});
+exports.getStatusController = getStatusController;
