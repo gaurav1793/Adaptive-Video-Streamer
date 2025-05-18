@@ -16,6 +16,7 @@ exports.uploadVideoController = void 0;
 const video_services_1 = require("../services/video.services");
 const fs_1 = __importDefault(require("fs"));
 const uploadVideoController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("inside controler", req.file);
     if (!req.file) {
         res.status(400).json({
             message: 'no file is uploaded'
@@ -24,7 +25,7 @@ const uploadVideoController = (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
     const videoPath = req.file.path;
     const outputPath = `output/${Date.now()}`;
-    (0, video_services_1.processVideoForHLS)(videoPath, outputPath, (err, masterPlayList) => {
+    (0, video_services_1.processVideoForHLS)(videoPath, outputPath, (err, _masterPlayList) => {
         if (err) {
             res.status(500).json({
                 success: false,
@@ -32,14 +33,19 @@ const uploadVideoController = (req, res) => __awaiter(void 0, void 0, void 0, fu
             });
             return;
         }
+        console.log("hi from controller", videoPath);
         fs_1.default.unlink(videoPath, (err) => {
-            console.log("An error occured while deleting video", err);
+            if (err) {
+                console.error("Error deleting file:", err);
+            }
+            else {
+                console.log("File deleted successfully");
+            }
         });
-        res.status(200).json({
-            success: true,
-            message: 'video processed succesfully',
-            data: `/${masterPlayList}`
-        });
+    });
+    res.status(200).json({
+        success: true,
+        message: 'video processed succesfully',
     });
 });
 exports.uploadVideoController = uploadVideoController;

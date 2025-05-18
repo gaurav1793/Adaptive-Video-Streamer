@@ -7,6 +7,7 @@ exports.processVideoForHLS = void 0;
 const fs_1 = __importDefault(require("fs"));
 const fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
 const Server_config_1 = require("../config/Server.config");
+const movie_repository_1 = require("../repositories/movie.repository");
 fluent_ffmpeg_1.default.setFfmpegPath(Server_config_1.FFMPEGPATH);
 const resolutions = [
     { width: 1920, height: 1080, bitRate: 2000 }, //1080
@@ -17,6 +18,7 @@ const resolutions = [
     { width: 256, height: 144, bitRate: 200 }, //144
 ];
 const processVideoForHLS = (inputPath, outputPath, callback) => {
+    (0, movie_repository_1.createMovie)(outputPath);
     fs_1.default.mkdirSync(outputPath, { recursive: true }); //create the output directory
     const masterPlayList = `${outputPath}/master.m3u8`; //path to master playlist file
     const masterContent = [];
@@ -36,14 +38,13 @@ const processVideoForHLS = (inputPath, outputPath, callback) => {
         ])
             .output(variantPlaylist)
             .on('end', () => {
-            masterContent.push(`#EXT-X-STREAM-INF:BANDWIDTH=${resolution.bitRate * 1000},
-                RESOLUTION=${resolution.width}x${resolution.height}
-                \n${resolution.height}p/playlist.m3u8`);
+            masterContent.push(`#EXT-X-STREAM-INF:BANDWIDTH=${resolution.bitRate * 1000},RESOLUTION=${resolution.width}x${resolution.height}\n${resolution.height}p/playlist.m3u8`);
             countProcessing += 1;
             if (countProcessing === resolutions.length) {
                 console.log('processing complete');
                 console.log(masterContent);
                 fs_1.default.writeFileSync(masterPlayList, `#EXTM3U\n${masterContent.join('\n')}`);
+                (0, movie_repository_1.updateMovieStatus)(outputPath, 'COMPLETED');
                 callback(null, masterPlayList);
             }
         })

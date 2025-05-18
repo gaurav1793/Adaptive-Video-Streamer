@@ -1,6 +1,7 @@
 import fs from 'fs'
 import ffmpeg from 'fluent-ffmpeg'
 import { FFMPEGPATH } from '../config/Server.config';
+import { createMovie, updateMovieStatus } from '../repositories/movie.repository';
 ffmpeg.setFfmpegPath(FFMPEGPATH!);
 
 interface Resolution{
@@ -28,6 +29,8 @@ interface videoProcessInterface{
 
 export const processVideoForHLS:videoProcessInterface =(inputPath,outputPath,callback)=>{
 
+    createMovie(outputPath);
+
     fs.mkdirSync(outputPath,{recursive:true}); //create the output directory
     const masterPlayList = `${outputPath}/master.m3u8`  //path to master playlist file
 
@@ -51,15 +54,15 @@ export const processVideoForHLS:videoProcessInterface =(inputPath,outputPath,cal
         .output(variantPlaylist)
         .on('end',()=>{
             masterContent.push(
-                `#EXT-X-STREAM-INF:BANDWIDTH=${resolution.bitRate*1000},
-                RESOLUTION=${resolution.width}x${resolution.height}
-                \n${resolution.height}p/playlist.m3u8`
+                `#EXT-X-STREAM-INF:BANDWIDTH=${resolution.bitRate*1000},RESOLUTION=${resolution.width}x${resolution.height}\n${resolution.height}p/playlist.m3u8`
             );
             countProcessing+=1;
             if(countProcessing === resolutions.length){
                 console.log('processing complete');
                 console.log(masterContent)
                 fs.writeFileSync(masterPlayList,`#EXTM3U\n${masterContent.join('\n')}`);
+
+                updateMovieStatus(outputPath,'COMPLETED')
                 callback(null,masterPlayList)
             }
         })
