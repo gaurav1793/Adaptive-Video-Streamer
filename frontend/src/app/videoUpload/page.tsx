@@ -1,16 +1,30 @@
 "use client"
 import axios from 'axios';
 import React, { ChangeEvent, useEffect, useState } from 'react'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation';
+
 
 const VideoUpload = () => {
   const [videoUrl,setVideoUrl] = useState<string|null>(null);
   const [file, setFile] = useState<Blob | string>('');
+  const router = useRouter();
 
+  async function check(id:number|NodeJS.Timeout){
+    const response=await axios.get(`http://localhost:3000/api/v1/videos/check/${videoUrl}`);
+    console.log(response);
+    if(response?.data?.data?.processingStatus==='COMPLETED'){
+      clearInterval(id);
+      console.log("helo bhai ho gya complete"
+      )
+      console.log(videoUrl);
+      router.push(`/stream/${videoUrl}`)
+    }
+  }
   useEffect(()=>{
     if(videoUrl){
       const x= setInterval(() => {
-      }, 1000);
+        check(x);
+      }, 20000);
     console.log("m chla");}
   },[videoUrl])
 
@@ -36,8 +50,8 @@ const VideoUpload = () => {
         }
       )
       setFile('');
-      console.log(response.data.data.split('/')[1]);
-      setVideoUrl(response.data.data.split('/')[1]);
+      
+      setVideoUrl(response.data.data.split('/')?.[1]);
 
     } catch (error) {
       console.log('something went wrong : ',error)

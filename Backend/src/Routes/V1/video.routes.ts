@@ -5,6 +5,6 @@ import { getStatusController, uploadVideoController } from '../../controllers/vi
 const videoRouter = express.Router();
 
 videoRouter.post('/upload',upload.single('video'),uploadVideoController)
-videoRouter.get('/check:id',upload.none(),getStatusController);
+videoRouter.get('/check/:id',upload.none(),getStatusController);
 
 export default videoRouter;

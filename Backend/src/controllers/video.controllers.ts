@@ -37,15 +37,27 @@ export const uploadVideoController = async(req:Request,res :Response)=>{
     res.status(200).json({
         success:true,
         message:'video processed succesfully',
-        data:outputPath
+        data:outputPath,
     })
 }
 
 
 
-export const getStatusController = async(req:Request,_res :Response)=>{
+export const getStatusController = async(req:Request,res :Response): Promise<void>=>{
     const id = req.params.id;
-    console.log(id);
-    // const response = await findStatus(id);
-    // console.log(response);
+    try {
+        const response = await findStatus(`output/${id}`);
+        console.log(response);
+         res.status(200).json({
+            data:response,
+        })
+        return;
+    } catch (error) {
+        console.log(error);
+         res.status(400).json({
+            message:`something went wrong${error}`,
+        })
+        return;
+    }
+    
 }
