@@ -12,17 +12,17 @@ fluent_ffmpeg_1.default.setFfmpegPath(Server_config_1.FFMPEGPATH);
 const resolutions = [
     { width: 1920, height: 1080, bitRate: 2000 }, //1080
     { width: 1280, height: 720, bitRate: 1000 }, //720
-    { width: 854, height: 480, bitRate: 500 }, //480
     { width: 640, height: 360, bitRate: 400 }, //360
-    { width: 426, height: 240, bitRate: 300 }, //240
     { width: 256, height: 144, bitRate: 200 }, //144
 ];
 const processVideoForHLS = (inputPath, outputPath, callback) => {
     (0, movie_repository_1.createMovie)(outputPath);
+    let calledCallback = false;
     fs_1.default.mkdirSync(outputPath, { recursive: true }); //create the output directory
     const masterPlayList = `${outputPath}/master.m3u8`; //path to master playlist file
-    const masterContent = [];
-    let countProcessing = 0;
+    fs_1.default.writeFileSync(masterPlayList, '#EXTM3U\n');
+    // const masterContent:string[]=[];
+    // let countProcessing:number=0;
     resolutions.forEach((resolution) => {
         const variantOutput = `${outputPath}/${resolution.height}p`;
         const variantPlaylist = `${variantOutput}/playlist.m3u8`;
@@ -32,21 +32,39 @@ const processVideoForHLS = (inputPath, outputPath, callback) => {
             `-b:v ${resolution.bitRate}k`,
             '-codec:v libx264',
             '-codec:a aac',
-            '-hls_time 10',
+            '-hls_time 45',
             '-hls_playlist_type vod',
             `-hls_segment_filename ${variantOutput}/segment%03d.ts`
         ])
             .output(variantPlaylist)
             .on('end', () => {
-            masterContent.push(`#EXT-X-STREAM-INF:BANDWIDTH=${resolution.bitRate * 1000},RESOLUTION=${resolution.width}x${resolution.height}\n${resolution.height}p/playlist.m3u8`);
-            countProcessing += 1;
-            if (countProcessing === resolutions.length) {
-                console.log('processing complete');
-                console.log(masterContent);
-                fs_1.default.writeFileSync(masterPlayList, `#EXTM3U\n${masterContent.join('\n')}`);
+            let content = `#EXT-X-STREAM-INF:BANDWIDTH=${resolution.bitRate * 1000},RESOLUTION=${resolution.width}x${resolution.height}\n${resolution.height}p/playlist.m3u8`;
+            console.log('processing complete');
+            console.log(content);
+            fs_1.default.appendFileSync(masterPlayList, content);
+            if (resolution.height === 144 && !calledCallback) {
+                calledCallback = true;
                 (0, movie_repository_1.updateMovieStatus)(outputPath, 'COMPLETED');
                 callback(null, masterPlayList);
             }
+            if (resolution.height === 1080) {
+                fs_1.default.unlink(outputPath, (err) => {
+                    if (err) {
+                        console.error("Error deleting file:", err);
+                    }
+                    else {
+                        console.log("File deleted successfully");
+                    }
+                });
+            }
+            // countProcessing+=1;
+            // if(countProcessing === resolutions.length){
+            //     console.log('processing complete');
+            //     console.log(masterContent)
+            //     fs.writeFileSync(masterPlayList,`#EXTM3U\n${masterContent.join('\n')}`);
+            //     updateMovieStatus(outputPath,'COMPLETED')
+            //     callback(null,masterPlayList)
+            // }
         })
             .on('error', (error) => {
             console.log('an error occured', error.message);

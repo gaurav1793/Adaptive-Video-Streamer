@@ -26,13 +26,6 @@ export const uploadVideoController = async(req:Request,res :Response)=>{
         }
 
         console.log("hi from controller",videoPath);
-        fs.unlink(videoPath, (err) => {
-            if (err) {
-                console.error("Error deleting file:", err);
-            } else {
-                console.log("File deleted successfully");
-            }
-        });
     })
     res.status(200).json({
         success:true,
