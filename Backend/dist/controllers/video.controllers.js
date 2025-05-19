@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadVideoController = void 0;
+exports.getStatusController = exports.uploadVideoController = void 0;
 const video_services_1 = require("../services/video.services");
 const fs_1 = __importDefault(require("fs"));
+const movie_repository_1 = require("../repositories/movie.repository");
 const uploadVideoController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("inside controler", req.file);
     if (!req.file) {
@@ -46,6 +47,26 @@ const uploadVideoController = (req, res) => __awaiter(void 0, void 0, void 0, fu
     res.status(200).json({
         success: true,
         message: 'video processed succesfully',
+        data: outputPath,
     });
 });
 exports.uploadVideoController = uploadVideoController;
+const getStatusController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    try {
+        const response = yield (0, movie_repository_1.findStatus)(`output/${id}`);
+        console.log(response);
+        res.status(200).json({
+            data: response,
+        });
+        return;
+    }
+    catch (error) {
+        console.log(error);
+        res.status(400).json({
+            message: `something went wrong${error}`,
+        });
+        return;
+    }
+});
+exports.getStatusController = getStatusController;

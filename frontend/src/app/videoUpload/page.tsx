@@ -1,9 +1,32 @@
 "use client"
 import axios from 'axios';
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation';
+
 
 const VideoUpload = () => {
   const [videoUrl,setVideoUrl] = useState<string|null>(null);
+  const [file, setFile] = useState<Blob | string>('');
+  const router = useRouter();
+
+  async function check(id:number|NodeJS.Timeout){
+    const response=await axios.get(`http://localhost:3000/api/v1/videos/check/${videoUrl}`);
+    console.log(response);
+    if(response?.data?.data?.processingStatus==='COMPLETED'){
+      clearInterval(id);
+      console.log("helo bhai ho gya complete"
+      )
+      console.log(videoUrl);
+      router.push(`/stream/${videoUrl}`)
+    }
+  }
+  useEffect(()=>{
+    if(videoUrl){
+      const x= setInterval(() => {
+        check(x);
+      }, 20000);
+    console.log("m chla");}
+  },[videoUrl])
 
   async function handleFileUplaod(e:ChangeEvent<HTMLInputElement>){
     const file = e.target.files?.[0];
@@ -12,6 +35,10 @@ const VideoUpload = () => {
       return;
     }
     console.log(file);
+    setFile(file);
+  }
+
+  async function handleUplaod(){
     try {
       const formData = new FormData();
       formData.append("video",file);
@@ -22,21 +49,30 @@ const VideoUpload = () => {
           }
         }
       )
+      setFile('');
+      
+      setVideoUrl(response.data.data.split('/')?.[1]);
+
     } catch (error) {
       console.log('something went wrong : ',error)
     }
   }
   return (
     <div className='h-screen w-full bg-gray-200 flex justify-center items-center'>
-      <div className='w-4/5 h-1/5  md:w-2/5 bg-white shadow-xl rounded-md p-6'>
+      <div className='w-4/5 h-2/5  md:w-2/5 bg-white shadow-xl rounded-md p-6'>
         <h1>Upload your file</h1>
         <input
           type="file"
           onChange={handleFileUplaod}
           className='h-2/3 bg-gray-300 w-full shadow-lg rounded p-2 mt-2 file:bg-blue-500 file:rounded-lg file:p-2  '
         />
+        <button onClick={handleUplaod} className='bg-gray-500 rounded-lg p-2 mt-4 '>upload</button>
       </div>
-
+      
+      <div>
+        
+      </div>
+        {/* {redirect('/join')} */}
     </div>
   )
 }

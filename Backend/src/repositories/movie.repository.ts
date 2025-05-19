@@ -25,12 +25,12 @@ export const updateMovieStatus = async(movieId:string ,status:string)=>{
 }
 
 
-// export  const findStatus = async(movieId:string)=>{
-//     const response =await prisma.movie.findFirst({
-//         where:{
-//             movieId
-//         }
-//     })
+export  const findStatus = async(movieId:string)=>{
+    const response =await prisma.movie.findFirst({
+        where:{
+            movieId
+        }
+    })
 
-//     return response;
-// }
+    return response;
+}
