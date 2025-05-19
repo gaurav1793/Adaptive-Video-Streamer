@@ -8,13 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStatusController = exports.uploadVideoController = void 0;
 const video_services_1 = require("../services/video.services");
-const fs_1 = __importDefault(require("fs"));
 const movie_repository_1 = require("../repositories/movie.repository");
 const uploadVideoController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("inside controler", req.file);
@@ -35,14 +31,6 @@ const uploadVideoController = (req, res) => __awaiter(void 0, void 0, void 0, fu
             return;
         }
         console.log("hi from controller", videoPath);
-        fs_1.default.unlink(videoPath, (err) => {
-            if (err) {
-                console.error("Error deleting file:", err);
-            }
-            else {
-                console.log("File deleted successfully");
-            }
-        });
     });
     res.status(200).json({
         success: true,
